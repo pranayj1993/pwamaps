@@ -12,7 +12,8 @@
 <meta name="msapplication-TileColor" content="#ffffff">
 <link rel="stylesheet" href="leaflet.css" />
 <script src="leaflet.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <!-- <script>
 	if (window.location.protocol === "http:"
 			&& window.location.origin != "localhost") {
@@ -27,11 +28,94 @@
 		<img src='img/hdb.png' width="40"height"40"></img> PWA Map Carpark
 		Prototype
 	</h1>
-	<!--Creates a Div for Map-->
+	<div id='search'>
+		<input type="text" name="searchText" id="searchText"
+			placeholder="Enter car park" title="Search" />
+		<button id="searchButton" title="search" onclick="showCarPark()">search</button>
+	</div>
+
 	<div id='map' style='height: 100%;'></div>
 
 	<script>
-		//Initialize OneMap and select one style
+    //Initialize OneMap and select one style
+    //The parameters are Div name,Map style(default,night grey,original),Zoom, Latitude, Longitude and Opacity
+    var map = onemap.initializeMap('map', "default", 60, 1.3, 103.8, 0.8)
+    map.locate({ setView: true, maxZoom: 12 });
+
+    //Setup configuration for REST API Services (Your Access Token)
+    //Our Documentation @  https://docs.onemap.sg
+    onemap.config("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjQzODEsInVzZXJfaWQiOjQzODEsImVtYWlsIjoic2hlcnlsLnllby4yMDE2QHNtdS5lZHUuc2ciLCJmb3JldmVyIjpmYWxzZSwiaXNzIjoiaHR0cDpcL1wvb20yLmRmZS5vbmVtYXAuc2dcL2FwaVwvdjJcL3VzZXJcL3Nlc3Npb24iLCJpYXQiOjE1ODg4MzExMTIsImV4cCI6MTU4OTI2MzExMiwibmJmIjoxNTg4ODMxMTEyLCJqdGkiOiI0MzcwMDdkOTA5NDM0ODhmNzZkZjlhNmI3ZDhlZGQzZCJ9.CV5lgfnEX6Ul2FpuWsXShIvIOX_tfbGKlL_pBgu2NWA");
+
+
+
+function showCarPark()
+{
+ var carpark = document.getElementById("searchText").value;
+  var themeObj = onemap.retrieveTheme("hdb_car_park_information");
+
+    //Convert Themes that are Points into GeoJSON for overlaying
+    var data = onemap.pointTheme2GeoJSON(themeObj);
+
+    //Add GeoJSON to map
+    var geojson = L.geoJSON(data, {
+        onEachFeature: function (feature, layer) {
+            layer.bindPopup('<h1>' + feature.properties.DESCRIPTION + '</h1><p>Description: ' + feature.properties.NAME + '</p>');
+            //Sets Icon information
+            var icon = L.icon({
+                iconUrl: 'img/parking.png',
+                iconSize: [30, 30]
+            });
+            layer.setIcon(icon)
+        }
+    });
+
+
+    geojson.addTo(map);
+
+
+    //Fit bound to markers
+    map.fitBounds(geojson.getBounds());
+ map.locate({ setView: true, maxZoom: 15 });
+ CallTheme();
+}
+
+
+//Call Theme Services
+ function CallTheme(){
+var x;
+var y;
+var sTxt = document.getElementById("searchText").value ;
+        $.ajax({
+        url: 'https://developers.onemap.sg/commonapi/search?searchVal=+sTxt+&returnGeom=Y&getAddrDetails=Y&pageNum=1',
+        success: function(result){
+            //Set result to a variable for writing
+            var TrueResult = JSON.stringify(result);
+          var TrueResult = result;
+           // document.write(TrueResult);
+        // var JSONSUB= result.results;
+	 //var LATITUDE= JSON.stringify(JSONSUB);
+           //var LONGITUDE= LATITUDE ["Y"];
+	   // alert(LONGITUDE);
+	for (i in TrueResult.results) {
+  		x = TrueResult.results[i].LATITUDE ; 
+		y = TrueResult.results[i].LONGITUDE ; 
+	}	
+
+            }});
+        }
+
+ </script>
+ 
+	<script type="text/javascript">
+		if ('serviceWorker' in navigator) {
+			navigator.serviceWorker.register('/sw.js').then(function() {
+				console.log("Service Worker Registered");
+			});
+		}
+	</script>
+
+	<script async defer>
+		/* //Initialize OneMap and select one style
 		//The parameters are Div name,Map style(default,night grey,original),Zoom, Latitude, Longitude and Opacity
 		var map = onemap.initializeMap('map', "default", 60, 1.3, 103.8, 0.8)
 		map.locate({
@@ -66,7 +150,7 @@
 		});
 		geojson.addTo(map);
 		//Fit bound to markers
-		map.fitBounds(geojson.getBounds());
+		map.fitBounds(geojson.getBounds()); */
 		
 		getLocation();
 		function getLocation() {
@@ -94,13 +178,6 @@
 	            }});
 		}
 		
-	</script>
-	<script type="text/javascript">
-		if ('serviceWorker' in navigator) {
-			navigator.serviceWorker.register('/sw.js').then(function() {
-				console.log("Service Worker Registered");
-			});
-		}
 	</script>
 
 </body>
