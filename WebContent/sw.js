@@ -35,7 +35,7 @@ self.__precacheManifest = [
     "revision": "fc1d1772dd5c552792184ac9af907a87"
   },
   {
-    "url": "onemap-leaflet.css",
+    "url": "leaflet.css",
     "revision": "7cc1e6125e83776334068445de06f97d"
   },
   {
@@ -1131,7 +1131,7 @@ self.__precacheManifest = [
     "revision": "8d525dc794b218fdf2d7a7f5ff457fd4"
   },
   {
-    "url": "onemap-leaflet.js",
+    "url": "leaflet.js",
     "revision": "2259d4a10911217a86ad83b1a6d10d40"
   },
   {
