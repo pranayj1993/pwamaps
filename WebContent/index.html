@@ -12,7 +12,7 @@
 <meta name="msapplication-TileColor" content="#ffffff">
 <link rel="stylesheet" href="leaflet.css" />
 <script src="leaflet.js"></script>
-<script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=false"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <!-- <script>
 	if (window.location.protocol === "http:"
 			&& window.location.origin != "localhost") {
@@ -76,36 +76,22 @@
 		}
 
 		function showPosition(position) {
-			marker = new L.Marker([ position.coords.latitude,
+			 marker = new L.Marker([ position.coords.latitude,
 					position.coords.longitude ], {
 				bounceOnAdd : false
 			}).addTo(map);
-			var latlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-		    // This is making the Geocode request
-		    var geocoder = new google.maps.Geocoder();
-		    var address="";
-		    var responseStatus=true;
-		    geocoder.geocode({ 'latLng': latlng }, function (results, status) {
-		        if (status !== google.maps.GeocoderStatus.OK) {
-		            alert("Error:-"+status);
-		            responseStatus=true;
-		        }
-		        // This is checking to see if the Geoeode Status is OK before proceeding
-		        if (status == google.maps.GeocoderStatus.OK) {
-		            console.log(results);
-		            address = (results[0].formatted_address);
-		        }
-		    });
-		    if(responseStatus){
-		    	var popup = L.popup().setLatLng(
-					[ position.coords.latitude, position.coords.longitude ])
-					.setContent(address).openOn(map);
-		    }else{
-		    	var popup = L.popup().setLatLng(
+			var lat=position.coords.latitude;
+			var lng=position.coords.longitude;
+	        $.ajax({
+	        url: 'https://developers.onemap.sg/privateapi/commonsvc/revgeocode?location='+lat+','+lng+'&token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjQzODEsInVzZXJfaWQiOjQzODEsImVtYWlsIjoic2hlcnlsLnllby4yMDE2QHNtdS5lZHUuc2ciLCJmb3JldmVyIjpmYWxzZSwiaXNzIjoiaHR0cDpcL1wvb20yLmRmZS5vbmVtYXAuc2dcL2FwaVwvdjJcL3VzZXJcL3Nlc3Npb24iLCJpYXQiOjE1ODg4MzExMTIsImV4cCI6MTU4OTI2MzExMiwibmJmIjoxNTg4ODMxMTEyLCJqdGkiOiI0MzcwMDdkOTA5NDM0ODhmNzZkZjlhNmI3ZDhlZGQzZCJ9.CV5lgfnEX6Ul2FpuWsXShIvIOX_tfbGKlL_pBgu2NWA&buffer=100&addressType=all',
+	        success: function(result){
+				var buildName = result.GeocodeInfo[0].BUILDINGNAME;
+				var block = result.GeocodeInfo[0].BLOCK;
+				var road = result.GeocodeInfo[0].ROAD;
+	        	var popup = L.popup().setLatLng(
 						[ position.coords.latitude, position.coords.longitude ])
-						.setContent("You are here!").openOn(map);
-		    }
-			
+						.setContent(buildName+', '+block+', '+road).openOn(map);
+	            }});
 		}
 		
 	</script>
